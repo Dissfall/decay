@@ -17,4 +17,35 @@ import Layout from '../layouts/Layout.astro';
     align: center;
     vertical-align: center;
   }
+
+  @keyframes tremor {
+    0%, 100% { transform: translateX(0) translateY(0); }
+    50% { transform: translateX(calc(var(--shake) * 1px)) translateY(calc(var(--shake) * 0.5px)); }
+  }
+
+  @keyframes drift {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(calc(var(--drift, 0) * 3px)); }
+    100% { transform: translateY(0px); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: var(--pulse-min, 1); }
+    50% { opacity: var(--pulse-max, 1); }
+  }
+
+  #text {
+    animation:
+      tremor calc(0.5s + var(--slow, 0) * 2s) ease-in-out infinite,
+      drift calc(4s + var(--slow, 0) * 4s) ease-in-out infinite,
+      pulse calc(2s + var(--slow, 0) * 2s) ease-in-out infinite;
+    filter: blur(var(--blur-amount, 0px));
+    font-size: 2.5rem;
+    font-weight: 600;
+    line-height: 1.5;
+    max-width: 90%;
+    text-shadow: 0 0 calc(var(--shake) * 2px) currentColor;
+    letter-spacing: calc(var(--spacing, 0) * 0.1em);
+    transition: all 2s ease;
+  }
 </style>
