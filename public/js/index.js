@@ -360,7 +360,11 @@ console.log(tears);
 
 text = evolve(tears);
 
-say(text);
+const baseSpeed = 30;
+const progressPercent = tears / 100;
+const typingSpeed = baseSpeed + progressPercent * 120; // 30ms to 150ms
+
+say(text, typingSpeed);
 
 setCookie("tears", tears + 1, 1);
 
@@ -381,7 +385,7 @@ function evolve(tears) {
     text = stage.transform(text);
   }
 
-  text = decay(text, Math.max(0, 1 - tears / 100));
+  text = decay(text, Math.max(0, 1 - tears / 500));
 
   document.body.style.background = stage.background || "#ffffff";
   document.body.style.color = stage.color || "#000000";
@@ -453,8 +457,37 @@ function evolve(tears) {
   return text;
 }
 
-function say(text) {
-  document.querySelector("#text").innerHTML = text.split("\n").join("<br>");
+function say(text, typingSpeed = 50) {
+  const textEl = document.querySelector("#text");
+  textEl.innerHTML = "";
+
+  const lines = text.split("\n");
+  let currentLine = 0;
+  let currentChar = 0;
+
+  function type() {
+    if (currentLine >= lines.length) {
+      return;
+    }
+
+    if (currentChar < lines[currentLine].length) {
+      textEl.innerHTML += lines[currentLine][currentChar];
+      currentChar++;
+
+      const delay = typingSpeed + Math.random() * typingSpeed * 0.5;
+      setTimeout(type, delay);
+    } else {
+      if (currentLine < lines.length - 1) {
+        textEl.innerHTML += "<br>";
+      }
+      currentLine++;
+      currentChar = 0;
+
+      setTimeout(type, typingSpeed * 2);
+    }
+  }
+
+  type();
 }
 
 function getCookie(cname) {
