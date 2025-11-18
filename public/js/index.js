@@ -366,6 +366,11 @@ const typingSpeed = baseSpeed + progressPercent * 120; // 30ms to 150ms
 
 say(text, typingSpeed);
 
+// Start glitch loop
+if (tears > 0) {
+  startGlitchLoop(tears);
+}
+
 setCookie("tears", tears + 1, 1);
 
 function evolve(tears) {
@@ -409,17 +414,26 @@ function evolve(tears) {
       const originalBg = document.body.style.background;
       const originalColor = document.body.style.color;
 
-      document.body.style.background = "#ff0000";
-      document.body.style.color = "#000000";
-      document.body.style.setProperty("--shake", 15);
-      textEl.innerHTML = "I WANT TO KILL MYSELF";
+      // Intense glitch burst before intrusive thought
+      glitchBurst(500, 2);
 
       setTimeout(() => {
-        document.body.style.background = originalBg;
-        document.body.style.color = originalColor;
-        document.body.style.setProperty("--shake", stage.shake || 0);
-        evolve(tears);
-      }, 1000);
+        document.body.style.background = "#ff0000";
+        document.body.style.color = "#000000";
+        document.body.style.setProperty("--shake", 15);
+        textEl.innerHTML = "I WANT TO KILL MYSELF";
+
+        // Screen tear during intrusive thought
+        screenTear(2);
+        glitchShake();
+
+        setTimeout(() => {
+          document.body.style.background = originalBg;
+          document.body.style.color = originalColor;
+          document.body.style.setProperty("--shake", stage.shake || 0);
+          evolve(tears);
+        }, 1000);
+      }, 500);
     }, 2000);
   }
 
@@ -435,11 +449,17 @@ function evolve(tears) {
         ];
         const textEl = document.querySelector("#text");
         const original = textEl.innerHTML;
+
+        // Glitch effects with intrusive thought
+        chromaticShift(3);
+        screenTear(1.5);
+
         textEl.innerHTML =
           intrusiveThoughts[
             Math.floor(Math.random() * intrusiveThoughts.length)
           ];
         document.body.style.setProperty("--shake", 12);
+
         setTimeout(() => {
           textEl.innerHTML = original;
           document.body.style.setProperty("--shake", stage.shake || 0);
@@ -447,6 +467,13 @@ function evolve(tears) {
       },
       Math.random() * 3000 + 1000,
     );
+  }
+
+  // Glitches at key emotional stages
+  if ([35, 45, 55, 65, 75].includes(tears)) {
+    setTimeout(() => {
+      glitchBurst(1000, 1 + progressPercent);
+    }, 1000);
   }
 
   if (stage.redirect && tears >= 100) {
@@ -632,6 +659,167 @@ function numb(text) {
     );
   });
   return result;
+}
+
+function screenTear(intensity = 1) {
+  const container = document.getElementById("glitch-overlay");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const numSlices = Math.floor(3 + Math.random() * 5);
+  const sliceHeight = 100 / numSlices;
+
+  for (let i = 0; i < numSlices; i++) {
+    const slice = document.createElement("div");
+    slice.className = "screen-tear";
+    slice.style.top = `${i * sliceHeight}%`;
+    slice.style.height = `${sliceHeight}%`;
+
+    const offset = (Math.random() - 0.5) * 20 * intensity;
+    slice.style.transform = `translateX(${offset}px)`;
+
+    container.appendChild(slice);
+  }
+
+  setTimeout(
+    () => {
+      container.innerHTML = "";
+    },
+    100 + Math.random() * 200,
+  );
+}
+
+function chromaticShift(amount = 2) {
+  const textEl = document.querySelector("#text");
+  if (!textEl) return;
+
+  textEl.classList.add("chromatic");
+  textEl.setAttribute("data-text", textEl.textContent);
+
+  document.documentElement.style.setProperty("--chromatic-x", `${amount}px`);
+  document.documentElement.style.setProperty(
+    "--chromatic-x-neg",
+    `${-amount}px`,
+  );
+
+  setTimeout(
+    () => {
+      textEl.classList.remove("chromatic");
+    },
+    150 + Math.random() * 150,
+  );
+}
+
+function digitalArtifacts(count = 5) {
+  const container = document.getElementById("glitch-overlay");
+  if (!container) return;
+
+  for (let i = 0; i < count; i++) {
+    const artifact = document.createElement("div");
+    artifact.className = "artifact";
+
+    artifact.style.left = `${Math.random() * 100}%`;
+    artifact.style.top = `${Math.random() * 100}%`;
+    artifact.style.width = `${10 + Math.random() * 50}px`;
+    artifact.style.height = `${2 + Math.random() * 10}px`;
+
+    const colors = [
+      "rgba(255,0,0,0.3)",
+      "rgba(0,255,0,0.3)",
+      "rgba(0,0,255,0.3)",
+      "rgba(255,255,255,0.2)",
+    ];
+    artifact.style.background =
+      colors[Math.floor(Math.random() * colors.length)];
+
+    container.appendChild(artifact);
+
+    setTimeout(
+      () => {
+        artifact.remove();
+      },
+      100 + Math.random() * 200,
+    );
+  }
+}
+
+function glitchShake() {
+  document.body.classList.add("glitch-active");
+  setTimeout(() => {
+    document.body.classList.remove("glitch-active");
+  }, 300);
+}
+
+function invertFlash() {
+  document.body.classList.add("invert-flash");
+  setTimeout(
+    () => {
+      document.body.classList.remove("invert-flash");
+    },
+    50 + Math.random() * 100,
+  );
+}
+
+function glitchBurst(duration = 1000, intensity = 1) {
+  const endTime = Date.now() + duration;
+
+  function burst() {
+    if (Date.now() >= endTime) return;
+
+    const effects = [
+      () => screenTear(intensity),
+      () => chromaticShift(2 * intensity),
+      () => digitalArtifacts(Math.floor(3 * intensity)),
+      () => glitchShake(),
+      () => invertFlash(),
+    ];
+
+    const numEffects = 1 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < numEffects; i++) {
+      const effect = effects[Math.floor(Math.random() * effects.length)];
+      effect();
+    }
+
+    setTimeout(burst, 50 + Math.random() * 200);
+  }
+
+  burst();
+}
+
+function startGlitchLoop(tears) {
+  const progressPercent = tears / 100;
+
+  document.documentElement.style.setProperty(
+    "--scanline-opacity",
+    progressPercent * 0.3,
+  );
+
+  let glitchInterval;
+  if (tears < 20) {
+    glitchInterval = 25000 + Math.random() * 10000;
+  } else if (tears < 40) {
+    glitchInterval = 15000 + Math.random() * 5000;
+  } else if (tears < 60) {
+    glitchInterval = 7000 + Math.random() * 3000;
+  } else if (tears < 80) {
+    glitchInterval = 3000 + Math.random() * 2000;
+  } else {
+    glitchInterval = 1000 + Math.random() * 2000;
+  }
+
+  setTimeout(() => {
+    if (tears < 40) {
+      screenTear(0.5);
+    } else if (tears < 60) {
+      const effects = [screenTear, chromaticShift, digitalArtifacts];
+      effects[Math.floor(Math.random() * effects.length)](progressPercent);
+    } else {
+      glitchBurst(500 + progressPercent * 1500, progressPercent);
+    }
+
+    startGlitchLoop(tears);
+  }, glitchInterval);
 }
 
 let bpm = Math.max(20, 80 - tears);

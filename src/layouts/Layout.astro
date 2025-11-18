@@ -8,6 +8,8 @@
 		<title>Decay</title>
 	</head>
 	<body>
+		<div class="scan-lines"></div>
+		<div class="glitch-overlay" id="glitch-overlay"></div>
 		<slot />
     <script is:inline src="/js/index.js"></script>
 	</body>
@@ -34,5 +36,111 @@
     background: radial-gradient(circle, transparent 0%, rgba(0,0,0,var(--vignette, 0)) 100%);
     pointer-events: none;
     transition: all 2s ease;
+  }
+
+  /* Glitch overlay container */
+  .glitch-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* Screen tear layers */
+  .screen-tear {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    background: inherit;
+    overflow: hidden;
+    transition: transform 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  /* Chromatic aberration effect */
+  .chromatic::before,
+  .chromatic::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    mix-blend-mode: screen;
+  }
+
+  .chromatic::before {
+    color: #ff0000;
+    transform: translateX(var(--chromatic-x, 2px));
+    opacity: 0.8;
+  }
+
+  .chromatic::after {
+    color: #00ffff;
+    transform: translateX(var(--chromatic-x-neg, -2px));
+    opacity: 0.8;
+  }
+
+  /* Scan lines */
+  .scan-lines {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.15),
+      rgba(0, 0, 0, 0.15) 1px,
+      transparent 1px,
+      transparent 2px
+    );
+    pointer-events: none;
+    z-index: 9998;
+    opacity: var(--scanline-opacity, 0);
+    animation: scanline-move 8s linear infinite;
+  }
+
+  @keyframes scanline-move {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(10px); }
+  }
+
+  /* Digital artifacts */
+  .artifact {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.1);
+    mix-blend-mode: overlay;
+    animation: artifact-flicker 0.1s steps(1) infinite;
+  }
+
+  @keyframes artifact-flicker {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+  }
+
+  /* Glitch shake */
+  @keyframes glitch-shake {
+    0%, 100% { transform: translate(0, 0) skew(0deg); }
+    10% { transform: translate(-5px, -5px) skew(-2deg); }
+    20% { transform: translate(5px, 5px) skew(2deg); }
+    30% { transform: translate(-5px, 5px) skew(1deg); }
+    40% { transform: translate(5px, -5px) skew(-1deg); }
+    50% { transform: translate(-5px, -5px) skew(-2deg); }
+    60% { transform: translate(5px, 5px) skew(2deg); }
+    70% { transform: translate(-5px, 5px) skew(1deg); }
+    80% { transform: translate(5px, -5px) skew(-1deg); }
+    90% { transform: translate(-5px, -5px) skew(-2deg); }
+  }
+
+  .glitch-active {
+    animation: glitch-shake 0.3s ease-in-out;
+  }
+
+  /* Invert effect */
+  .invert-flash {
+    filter: invert(1) hue-rotate(180deg);
   }
 </style>
